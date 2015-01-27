@@ -1,6 +1,15 @@
 import urllib, urllib2, socket, hashlib, time, platform
 import xbmcaddon, xbmc
 import simplejson as json
+import os
+
+
+libs = os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'lib')
+sys.path.append(libs)
+
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+from polling_local import LocalPoller
 
 __addon__ = xbmcaddon.Addon()
 __addonid__ = __addon__.getAddonInfo('id')
@@ -64,9 +73,12 @@ def get_urldata(url, urldata, method):
 class Main:
     def __init__(self):
         xbmc.log(__addonname__ + "=> Main.__init__")
+        self.observer = Observer()
         self._service_setup()
         while not xbmc.abortRequested:
             xbmc.sleep(1000)
+        self.observer.stop()
+        self.observer.join()
 
     def _service_setup(self):
         xbmc.log(__addonname__ + "=> Main._service_setup")
@@ -85,12 +97,20 @@ class Main:
         betapass = __addon__.getSetting('betapass')
         betafollow = __addon__.getSetting('betafollow') == 'true'
         betanotify = __addon__.getSetting('betanotify') == 'true'
-        if betaactive and betauser and betapass:
+        path = __addon__.getSetting('videosource1').decode('utf-8')
+
+        if betaactive and betauser and betapass and path:
             xbmc.log(__addonname__ + "=> betaactive and betauser and betapass")
             # [service, api-url, api-key, user, pass, token, auth-fail, failurecount, timercounter, timerexpiretime, follow, notify]
             service = ['betaseries', self.apiurl, self.apikey, betauser, betapass, '', False, 0, 0, 0, betafollow,
                        betanotify]
-            self.videoLibrary = MyVideoLibrary(action=self._service_betaserie, service=service)
+            # self.videoLibrary = MyVideoLibrary(action=self._service_betaserie, service=service)
+
+            event_handler = EventHandler()
+
+            self.observer.schedule(event_handler, path=path, LocalPoller)
+            self.observer.start()
+
             # notification
             if service[11]:
                 xbmc.executebuiltin(
@@ -301,6 +321,9 @@ class Main:
         #     for episode in episodesList["result"]["episodes"]:
         #         xbmc.log(str(episode["episode"]))
 
+class EventHandler(FileSystemEventHandler):
+    def on_created(self, event):
+        xbmc.log('********* NOUVEAU FICHIER')
 
 class MyVideoLibrary(xbmc.Monitor):
     def __init__(self, *args, **kwargs):

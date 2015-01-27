@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>
+    <string id="20001">Auto</string>
+    <string id="20002">Polling</string>
+
+    <string id="30000">BetaSeries</string>
+    <string id="30001">Activer le service BetaSeries.com</string>
+    <string id="30002">Nom utilisateur BetaSeries.com</string>
+    <string id="30003">Mot de passe BetaSeries.com</string>
+    <string id="30004">Ajouter automatiquement les nouvelles séries regardées</string>
+    <string id="30005">Notification visuelle lors du marquage d'un épisode</string>
+
+    <string id="30100">Général</string>
+    <string id="30101">Scan au démarrage</string>
+    <string id="30102">Cacher la barre de progression</string>
+    <string id="30103">Voie la boite de dialogue</string>
+    <string id="30104"></string>
+    <string id="30105"></string>
+
+    <string id="30200">Sources</string>
+    <string id="30201">Video Source 1</string>
+    <string id="30202">Video Source 2</string>
+    <string id="30203">Video Source 3</string>
+    <string id="30204">Video Source 4</string>
+    <string id="30205">Video Source 5</string>
+    <string id="30206"></string>
+    <string id="30207"></string>
+
+    <string id="30300">Avancé</string>
+    <string id="30301"></string>
+    <string id="30302"></string>
+    <string id="30303">Intervalle de sondage</string>
+    <string id="30304">Sondage récursif</string>
+    <string id="30305"></string>
+    <string id="30306">Délai de démarrage</string>
+    <string id="30307"></string>
+    <string id="30308"></string>
+
+
+</strings>

@@ -1,10 +1,36 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
 	<category label="30000">
-		<setting id="betaactive" type="bool" label="30004" default="true"/>
-		<setting id="betauser" type="text" label="30006" default="" enable="eq(-1,true)"/>
-		<setting id="betapass" type="text" label="30007" default="" enable="eq(-2,true)" option="hidden"/>
-		<setting id="betafollow" type="bool" label="30011" default="true" enable="eq(-3,true)"/>
-		<setting id="betanotify" type="bool" label="30012" default="true" enable="eq(-8,true)"/>
+		<setting id="betaactive" type="bool" label="30001" default="true"/>
+		<setting id="betauser" type="text" label="30002" default="" enable="eq(-1,true)"/>
+		<setting id="betapass" type="text" label="30003" default="" enable="eq(-2,true)" option="hidden"/>
+		<setting id="betafollow" type="bool" label="30004" default="true" enable="eq(-3,true)"/>
+		<setting id="betanotify" type="bool" label="30005" default="true" enable="eq(-4,true)"/>
 	</category>
+	<category label="30100">
+        <setting label="30101" id="scanonstart" type="bool" default="false"/>
+        <setting label="30102" id="hideprogress" type="bool" default="true"/>
+        <setting label="30103" id="showstatusdialog" type="bool" default="false"/>
+        <setting label="30104" type="lsep"/>
+        <setting label="30105" type="lsep"/>
+    </category>
+    <category label="30200">
+        <setting label="30201" id="videosource1" type="folder" value="" />
+        <setting label="30202" id="videosource2" type="folder" value="" enable="!eq(-1,'')"/>
+        <setting label="30203" id="videosource3" type="folder" value="" enable="!eq(-1,'')"/>
+        <setting label="30204" id="videosource4" type="folder" value="" enable="!eq(-1,'')"/>
+        <setting label="30205" id="videosource5" type="folder" value="" enable="!eq(-1,'')"/>
+        <setting label="30206" type="lsep"/>
+        <setting label="30207" type="lsep"/>
+    </category>
+    <category label="30300">
+        <!--<setting label="30301" id="method" type="select" lvalues="20001|20002" default="0"/>-->
+        <!--<setting label="30302" id="removalmethod" type="select" lvalues="30055|30054" default="0"/>-->
+        <setting label="30303" id="pollinginterval" type="number" default="4"/>
+        <setting label="30304" id="recursivepolling" type="bool" default="true"/>
+        <!--<setting label="30305" id="delay" type="number" default="1"/>-->
+        <setting label="30306" id="startupdelay" type="number" default="0"/>
+        <!--<setting label="30307" id="forceglobalscan" type="bool" default="false"/>-->
+        <setting label="30308" type="lsep"/>
+    </category>
 </settings>
