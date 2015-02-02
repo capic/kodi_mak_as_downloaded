@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import os
 import traceback
 import xbmc
+import xbmcvfs
 import xbmcgui
 import utils
 import settings
@@ -13,6 +14,7 @@ from itertools import repeat
 from watchdog.events import FileSystemEventHandler
 from watchdog.utils.compat import Event
 from emitters import MultiEmitterObserver
+from polling_local import _Recursive
 
 
 class EventHandler(FileSystemEventHandler):
@@ -33,7 +35,7 @@ class EventHandler(FileSystemEventHandler):
         self.betaSeriesDownloaded._service_betaserie(event.src_path)
 
     def on_any_event(self, event):
-        xbmc.log("[event] <%s> <%r>" % (event.event_type, event.src_path))
+        xbmc.log(settings.LOG_ADDON_NAME + "[event] <%s> <%r>" % (event.event_type, event.src_path))
 
     def _is_hidden(self, path):
         sep = '/' if utils.is_url(self.path) else os.sep
@@ -47,15 +49,25 @@ class EventHandler(FileSystemEventHandler):
         if not path:
             return False
         if self._is_hidden(path):
-            log("[event] skipping <%s> <%r>" % (event.event_type, path))
+            xbmc.log(settings.LOG_ADDON_NAME + "[event] skipping <%s> <%r>" % (event.event_type, path))
             return True
         if not event.is_directory:
             _, ext = os.path.splitext(path)
             ext = ext.lower()
             if self.supported_media.find('|%s|' % ext) == -1:
-                log("[event] skipping <%s> <%r>" % (event.event_type, path))
+                xbmc.log(settings.LOG_ADDON_NAME + "[event] skipping <%s> <%r>" % (event.event_type, path))
                 return True
         return False
+
+def scan_on_start(directory, betaseriesDownloaded):
+    xbmc.log(settings.LOG_ADDON_NAME + "=================== scan directory %s" % directory)
+    dirs, files = xbmcvfs.listdir(directory)
+
+    for file in files:
+        betaseriesDownloaded._service_betaserie(file)
+
+    for dir in dirs:
+        scan_on_start(directory + dir, betaseriesDownloaded)
 
 
 def main():
@@ -83,8 +95,10 @@ def main():
 
         betaSeriesDownloaded = BetaSeriesDownloaded(__useragent__)
 
-        # if settings.SCAN_ON_START:
-
+        if settings.SCAN_ON_START:
+            xbmc.log(settings.LOG_ADDON_NAME + "scan on start")
+            for directory in settings.VIDEO_SOURCES:
+                scan_on_start(directory, betaSeriesDownloaded)
 
         observer = MultiEmitterObserver()
         observer.start()  # start so emitters are started on schedule

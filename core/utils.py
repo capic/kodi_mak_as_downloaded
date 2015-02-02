@@ -172,7 +172,6 @@ def get_urldata(user_agent, url, urldata, method):
     try:
         # response = urllib2.urlopen(req)
         connection = opener.open(req)
-        xbmc.log(settings.LOG_ADDON_NAME + "5")
     except urllib2.HTTPError as e:
         connection = e
 
@@ -191,14 +190,14 @@ def get_urldata(user_agent, url, urldata, method):
 def extract_shows_info_from_filename(filenametoextract):
     infos = []
     if filenametoextract != "":
-        infosseasonepisode = re.search('S[0-9]+E[0-9]+', filenametoextract)
-
-        if infosseasonepisode != "":
+        infosseasonepisode = re.search('S[0-9]+E[0-9]+', filenametoextract, re.IGNORECASE)
+        xbmc.log(settings.LOG_ADDON_NAME + "infosseasonepisode %s" % infosseasonepisode)
+        if infosseasonepisode is not None:
             indexlastslash = filenametoextract.rfind('/') + 1
             name = filenametoextract[indexlastslash:]
             indexseasonepisode = name.index(infosseasonepisode.group(0))
-            season = re.search('S[0-9]+', name).group(0)[1:]
-            episode = re.search('E[0-9]+', name).group(0)[1:]
+            season = re.search('S[0-9]+', name, re.IGNORECASE).group(0)[1:]
+            episode = re.search('E[0-9]+', name, re.IGNORECASE).group(0)[1:]
             name = name[:indexseasonepisode]
             name = name.replace('.', ' ')
             name = name.strip()
