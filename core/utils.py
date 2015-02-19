@@ -123,7 +123,7 @@ class OrderedSetQueue(object):
 
 
 def set_user_agent():
-    xbmc.log(settings.LOG_ADDON_NAME + "set_user_agent")
+    xbmc.log(settings.LOG_ADDON_NAME + "set_user_agent", xbmc.LOGDEBUG)
     json_query = json.loads(xbmc.executeJSONRPC(
         '{ "jsonrpc": "2.0", "method": "Application.GetProperties", "params": {"properties": ["version", "name"]}, "id": 1 }'))
     try:
@@ -132,17 +132,15 @@ def set_user_agent():
         name = 'Kodi' if int(major) >= 14 else 'XBMC'
         version = "%s %s.%s" % (name, major, minor)
     except:
-        xbmc.log(settings.LOG_ADDON_NAME + "could not get app version")
+        xbmc.log(settings.LOG_ADDON_NAME + "could not get app version", xbmc.LOGNOTICE)
         version = "XBMC"
     return "Mozilla/5.0 (compatible; " + settings.PLATFORM + "; " + version + "; " + settings.ADDON_ID + "/" + settings.ADDON_VERSION + ")"
 
 
 def get_urldata(user_agent, url, urldata, method):
-    xbmc.log(settings.LOG_ADDON_NAME + 'User-Agent:%s' % user_agent)
+    xbmc.log(settings.LOG_ADDON_NAME + "IN ***** get_urldata *****", xbmc.LOGDEBUG)
 
-    xbmc.log(settings.LOG_ADDON_NAME + "IN ***** get_urldata *****")
-
-    xbmc.log(settings.LOG_ADDON_NAME + "url: %s, urldata: %s, method: %s" % (url, urldata, method))
+    xbmc.log(settings.LOG_ADDON_NAME + "url: %s, urldata: %s, method: %s" % (url, urldata, method), xbmc.LOGDEBUG)
 
      # create a handler
     handler = urllib2.HTTPSHandler()
@@ -155,14 +153,15 @@ def get_urldata(user_agent, url, urldata, method):
         for data in urldata:
             if not first:
                 url += '&'
-            url += data[0] + '=' + urllib.quote(data[1])
+            url += data[0] + '=' + urllib.quote(str(data[1]))
             first = False
+            xbmc.log(settings.LOG_ADDON_NAME + "url building: %s" % url, xbmc.LOGDEBUG)
         body = ''
     else:
         # encode urldata
         body = urllib.urlencode(urldata)
     # build a request
-    xbmc.log(settings.LOG_ADDON_NAME + "url: %s" % url)
+    xbmc.log(settings.LOG_ADDON_NAME + "url: %s" % url, xbmc.LOGDEBUG)
     req = urllib2.Request(url, data=body)
     # add any other information you want
     req.add_header('Accept', 'application/json')
@@ -177,32 +176,58 @@ def get_urldata(user_agent, url, urldata, method):
 
     if connection.code:
         response = connection.read()
-        xbmc.log(settings.LOG_ADDON_NAME + "response : " + response)
-        xbmc.log(settings.LOG_ADDON_NAME + "OUT ***** OK get_urldata *****")
+        xbmc.log(settings.LOG_ADDON_NAME + "response : " + response, xbmc.LOGDEBUG)
+        xbmc.log(settings.LOG_ADDON_NAME + "OUT ***** OK get_urldata *****", xbmc.LOGDEBUG)
         return response
     else:
         xbmc.log('response empty')
 
-        xbmc.log(settings.LOG_ADDON_NAME + "OUT ***** EMPTY get_urldata *****")
+        xbmc.log(settings.LOG_ADDON_NAME + "OUT ***** EMPTY get_urldata *****", xbmc.LOGDEBUG)
         return 0
 
 
-def extract_shows_info_from_filename(filenametoextract):
+def extract_shows_info_from_filename(filename_to_extract):
+    xbmc.log(settings.LOG_ADDON_NAME + "IN ***** extract_shows_info_from_filename *****", xbmc.LOGDEBUG)
+    xbmc.log(settings.LOG_ADDON_NAME + "filename_to_extract %s" % filename_to_extract, xbmc.LOGDEBUG)
+
     infos = []
-    if filenametoextract != "":
-        infosseasonepisode = re.search('S[0-9]+E[0-9]+', filenametoextract, re.IGNORECASE)
-        xbmc.log(settings.LOG_ADDON_NAME + "infosseasonepisode %s" % infosseasonepisode)
-        if infosseasonepisode is not None:
-            indexlastslash = filenametoextract.rfind('/') + 1
-            name = filenametoextract[indexlastslash:]
-            indexseasonepisode = name.index(infosseasonepisode.group(0))
-            season = re.search('S[0-9]+', name, re.IGNORECASE).group(0)[1:]
-            episode = re.search('E[0-9]+', name, re.IGNORECASE).group(0)[1:]
-            name = name[:indexseasonepisode]
+    if filename_to_extract != "":
+        infos_season_episode = re.search('S[0-9]+E[0-9]+', filename_to_extract, re.IGNORECASE)
+        if infos_season_episode is not None:
+            index_last_slash = filename_to_extract.rfind('/') + 1
+            name = filename_to_extract[index_last_slash:]
+            index_season_episode = name.index(infos_season_episode.group(0))
+            season = re.search('S[0-9]+', name, re.IGNORECASE).group(0)[1:].lstrip('0')
+            episode = re.search('E[0-9]+', name, re.IGNORECASE).group(0)[1:].lstrip('0')
+            name = name[:index_season_episode]
             name = name.replace('.', ' ')
             name = name.strip()
 
             if name != "" and season != "" and episode != "":
-                infos = [name, season, episode]
+                infos = [name, int(season), int(episode)]
+
+    return infos
+
+def extract_shows_info_from_directory_filename(filename_to_extract):
+    xbmc.log(settings.LOG_ADDON_NAME + "IN ***** extract_shows_info_from_directory_filename *****", xbmc.LOGDEBUG)
+    xbmc.log(settings.LOG_ADDON_NAME + "filename_to_extract %s" % filename_to_extract, xbmc.LOGDEBUG)
+
+    infos = []
+    if filename_to_extract != "":
+        infos_season_episode = re.search('S[0-9]+E[0-9]+', filename_to_extract, re.IGNORECASE)
+        if infos_season_episode is not None:
+            index_last_slash = filename_to_extract.rfind('/') + 1
+            show_name = filename_to_extract[index_last_slash:]
+            directory = filename_to_extract[:index_last_slash - 1]
+            index_last_slash = directory.rfind('/') + 1
+            name = directory[index_last_slash:]
+            season = re.search('S[0-9]+', show_name, re.IGNORECASE).group(0)[1:].lstrip('0')
+            episode = re.search('E[0-9]+', show_name, re.IGNORECASE).group(0)[1:].lstrip('0')
+
+            if name != "" and season != "" and episode != "":
+                infos = [name.lower(), int(season), int(episode)]
+                xbmc.log(settings.LOG_ADDON_NAME + "%s" % infos, xbmc.LOGDEBUG)
+
+    xbmc.log(settings.LOG_ADDON_NAME + "OUT ***** extract_shows_info_from_directory_filename *****", xbmc.LOGDEBUG)
 
     return infos

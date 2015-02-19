@@ -3,6 +3,7 @@
     <string id="20001">Auto</string>
     <string id="20002">Polling</string>
 
+    <!--OPTIONS DE CONFIGURATION-->
     <string id="30000">BetaSeries</string>
     <string id="30001">Activer le service BetaSeries.com</string>
     <string id="30002">Nom utilisateur BetaSeries.com</string>
@@ -36,5 +37,14 @@
     <string id="30307"></string>
     <string id="30308"></string>
 
-
+    <!--NOTIFICATIONS-->
+    <string id="40001">Chargement réussi</string>
+    <string id="40002">Série ajoutée</string>
+    <string id="40003">Episode marqué comme téléchargé</string>
+    <string id="40004">Erreur d'authentification</string>
+    <string id="40005">Veuillez mettre à jour l'addon</string>
+    <string id="40006">Impossible de se connecter au site</string>
+    <string id="40007">Login ou mot de passe incorrect</string>
+    <string id="40008">Erreur d'ajout de la série</string>
+    <string id="40009">Erreur de marquage de l'épisode</string>
 </strings>

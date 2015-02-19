@@ -114,7 +114,7 @@ class Main:
             # notification
             if service[11]:
                 xbmc.executebuiltin(
-                    (u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(30003), 750, __icon__)).encode('utf-8',
+                    (u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(40001), 750, __icon__)).encode('utf-8',
                                                                                                                 'ignore'))
 
     # episode: [int(tvdbid), int(tvdbepid), int(playcount), showtitle, epname, downloaded]
@@ -154,7 +154,7 @@ class Main:
         except:
             service = self._service_fail(service, True)
             xbmc.executebuiltin(
-                (u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(32003), 750, __icon__)).encode('utf-8',
+                (u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(40006), 750, __icon__)).encode('utf-8',
                                                                                                             'ignore'))
             xbmc.log(__addonname__ + "=> failed to connect for authentication", xbmc.LOGNOTICE)
             return service
@@ -173,7 +173,7 @@ class Main:
             if data['errors'][0]['code'] < 2000:
                 # API error
                 xbmc.executebuiltin(
-                    (u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(32002), 750, __icon__)).encode('utf-8',
+                    (u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(40005), 750, __icon__)).encode('utf-8',
                                                                                                                 'ignore'))
                 xbmc.log(__addonname__ + "=> bad API usage", xbmc.LOGNOTICE)
                 # disable the service, the monitor class will pick up the changes
@@ -181,7 +181,7 @@ class Main:
             elif data['errors'][0]['code'] > 4001:
                 # login error
                 xbmc.executebuiltin(
-                    (u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(32004), 750, __icon__)).encode('utf-8',
+                    (u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(40007), 750, __icon__)).encode('utf-8',
                                                                                                                 'ignore'))
                 xbmc.log(__addonname__ + "=> login or password incorrect", xbmc.LOGNOTICE)
                 service[6] = True
@@ -189,7 +189,7 @@ class Main:
                 # everything else
                 service = self._service_fail(service, True)
                 xbmc.executebuiltin(
-                    (u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(32001), 750, __icon__)).encode('utf-8',
+                    (u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(40004), 750, __icon__)).encode('utf-8',
                                                                                                                 'ignore'))
                 xbmc.log(__addonname__ + "=> server error while authenticating", xbmc.LOGNOTICE)
         return service
@@ -232,7 +232,7 @@ class Main:
                         xbmc.log(__addonname__ + "=> already following show %s" % episode[3])
                     else:
                         xbmc.executebuiltin((u'Notification(%s,%s,%s,%s)' % (
-                            __addonname__, __language__(32005) + episode[3].decode('utf-8'), 750, __icon__)).encode(
+                            __addonname__, __language__(40008) + episode[3].decode('utf-8'), 750, __icon__)).encode(
                             'utf-8',
                             'ignore'))
                         xbmc.log(__addonname__ + "=> failed to follow show %s" % episode[3], xbmc.LOGNOTICE)
@@ -240,7 +240,7 @@ class Main:
                 else:
                     if service[11]:
                         xbmc.executebuiltin((u'Notification(%s,%s,%s,%s)' % (
-                            __addonname__, __language__(30013) + episode[3].decode('utf-8'), 750, __icon__)).encode(
+                            __addonname__, __language__(40002) + episode[3].decode('utf-8'), 750, __icon__)).encode(
                             'utf-8',
                             'ignore'))
                     xbmc.log(__addonname__ + "=> now following show %s" % (episode[3]))
@@ -273,7 +273,7 @@ class Main:
                         xbmc.LOGNOTICE)
                 else:
                     xbmc.executebuiltin(
-                        (u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(32006), 750, __icon__)).encode(
+                        (u'Notification(%s,%s,%s,%s)' % (__addonname__, __language__(40009), 750, __icon__)).encode(
                             'utf-8',
                             'ignore'))
                     xbmc.log(__addonname__ + "=> error marking episode %s as downloaded" % episode[5], xbmc.LOGNOTICE)
@@ -281,7 +281,7 @@ class Main:
                 if service[11]:
                     xbmc.executebuiltin(
                         (u'Notification(%s,%s,%s,%s)' % (
-                            __addonname__, __language__(30014), 750, __icon__)).encode(
+                            __addonname__, __language__(40003), 750, __icon__)).encode(
                             'utf-8', 'ignore'))
                 xbmc.log(__addonname__ + "=> %s episode %s marked as downloaded" % (episode[4], episode[5]))
             return service
