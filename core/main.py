@@ -163,7 +163,7 @@ def main():
             progress.close()
             progress.create("Prepare files to mark as download. Please wait...")
             for directory in settings.VIDEO_SOURCES:
-                files_to_scan = prepare_files(directory, files_to_scan, episode_to_download_in_account)
+                files_to_scan = prepare_files(directory + "/", files_to_scan, episode_to_download_in_account)
 
             xbmc.log(settings.LOG_ADDON_NAME + "-------- list files %s (%s)" % (files_to_scan, len(files_to_scan)),
                      xbmc.LOGNOTICE)

@@ -162,6 +162,7 @@ class BetaSeriesDownloaded:
                         showtitle = show['title']
 
                 if tvdbid == -1:
+                    xbmc.log(settings.LOG_ADDON_NAME + "Show %s not found" % infos_show_title, xbmc.LOGNOTICE)
                     return False
 
                 xbmc.log(settings.LOG_ADDON_NAME + "Infos got from betaseries : %s " % tvdbid, xbmc.LOGDEBUG)
