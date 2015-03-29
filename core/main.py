@@ -9,6 +9,7 @@ import utils
 import settings
 import time
 import emitters
+import utils
 from betaseries import BetaSeriesDownloaded
 from utils import escape_param, set_user_agent
 from itertools import repeat
@@ -37,7 +38,7 @@ class EventHandler(FileSystemEventHandler):
         self.betaSeriesDownloaded._service_betaserie(file)
 
     def on_any_event(self, event):
-        xbmc.log(settings.LOG_ADDON_NAME + "[event] <%s> <%r>" % (event.event_type, event.src_path), xbmc.LOGDEBUG)
+        utils.log(settings.LOG_ADDON_NAME + "[event] <%s> <%r>" % (event.event_type, event.src_path), xbmc.LOGDEBUG)
 
     def _is_hidden(self, path):
         sep = '/' if utils.is_url(self.path) else os.sep
@@ -51,21 +52,21 @@ class EventHandler(FileSystemEventHandler):
         if not path:
             return False
         if self._is_hidden(path):
-            xbmc.log(settings.LOG_ADDON_NAME + "[event] skipping <%s> <%r>" % (event.event_type, path), xbmc.LOGDEBUG)
+            utils.log(settings.LOG_ADDON_NAME + "[event] skipping <%s> <%r>" % (event.event_type, path), xbmc.LOGDEBUG)
             return True
         if not event.is_directory:
             _, ext = os.path.splitext(path)
             ext = ext.lower()
             if self.supported_media.find('|%s|' % ext) == -1:
-                xbmc.log(settings.LOG_ADDON_NAME + "[event] skipping <%s> <%r>" % (event.event_type, path),
+                utils.log(settings.LOG_ADDON_NAME + "[event] skipping <%s> <%r>" % (event.event_type, path),
                          xbmc.LOGDEBUG)
                 return True
         return False
 
 
-def prepare_files(directory, files_to_scan, episode_to_download_in_account):
-    xbmc.log(settings.LOG_ADDON_NAME + "*** IN prepare_files", xbmc.LOGDEBUG)
-    xbmc.log(settings.LOG_ADDON_NAME + "Scan directory %s" % directory, xbmc.LOGDEBUG)
+def prepare_files(directory, files_to_scan, episode_to_download_in_account, file_to_write):
+    utils.log(settings.LOG_ADDON_NAME + "*** IN prepare_files", xbmc.LOGDEBUG)
+    utils.log(settings.LOG_ADDON_NAME + "Scan directory %s" % directory, xbmc.LOGDEBUG)
 
     dirs, files = xbmcvfs.listdir(directory)
 
@@ -77,25 +78,30 @@ def prepare_files(directory, files_to_scan, episode_to_download_in_account):
 
             if len(file_infos) > 0 and len(episode_to_download_in_account) > 0:
                 try:
-                    xbmc.log(settings.LOG_ADDON_NAME + "Show %s exists in account ?" % file_infos[0], xbmc.LOGDEBUG)
+                    episode_str = str(file_infos[0] + " " + str(file_infos[1]) + "x" + str(file_infos[2]) + "\n")
+
+                    utils.log(settings.LOG_ADDON_NAME + "Show %s exists in account ?" % file_infos[0], xbmc.LOGDEBUG)
                     if file_infos[0] in episode_to_download_in_account.keys():
-                        xbmc.log(settings.LOG_ADDON_NAME + "Yes", xbmc.LOGDEBUG)
-                        xbmc.log(settings.LOG_ADDON_NAME + "Season %s exists in account ?" % file_infos[1],
+                        utils.log(settings.LOG_ADDON_NAME + "Yes", xbmc.LOGDEBUG)
+                        utils.log(settings.LOG_ADDON_NAME + "Season %s exists in account ?" % file_infos[1],
                                  xbmc.LOGDEBUG)
                         if file_infos[1] in episode_to_download_in_account[file_infos[0]].keys():
-                            xbmc.log(settings.LOG_ADDON_NAME + "Yes", xbmc.LOGDEBUG)
-                            xbmc.log(settings.LOG_ADDON_NAME + "Episode %s exists in account ?" % file_infos[2],
+                            utils.log(settings.LOG_ADDON_NAME + "Yes", xbmc.LOGDEBUG)
+                            utils.log(settings.LOG_ADDON_NAME + "Episode %s exists in account ?" % file_infos[2],
                                      xbmc.LOGDEBUG)
                             if file_infos[2] not in episode_to_download_in_account[file_infos[0]][file_infos[1]]:
-                                xbmc.log(settings.LOG_ADDON_NAME + "No: add to mark as downloaded", xbmc.LOGDEBUG)
+                                utils.log(settings.LOG_ADDON_NAME + "No: add to mark as downloaded", xbmc.LOGDEBUG)
+                                file_to_write.write(episode_str)
                                 files_to_scan.append(file_infos)
                             else:
-                                xbmc.log(settings.LOG_ADDON_NAME + "Yes: not to be marked as downloaded", xbmc.LOGDEBUG)
+                                utils.log(settings.LOG_ADDON_NAME + "Yes: not to be marked as downloaded", xbmc.LOGDEBUG)
                         else:
-                            xbmc.log(settings.LOG_ADDON_NAME + "No: add to mark as downloaded", xbmc.LOGDEBUG)
+                            utils.log(settings.LOG_ADDON_NAME + "No: add to mark as downloaded", xbmc.LOGDEBUG)
+                            file_to_write.write(episode_str)
                             files_to_scan.append(file_infos)
                     else:
-                        xbmc.log(settings.LOG_ADDON_NAME + "No: add to mark as downloaded", xbmc.LOGDEBUG)
+                        utils.log(settings.LOG_ADDON_NAME + "No: add to mark as downloaded", xbmc.LOGDEBUG)
+                        file_to_write.write(episode_str)
                         files_to_scan.append(file_infos)
                 except:
                     raise
@@ -103,9 +109,9 @@ def prepare_files(directory, files_to_scan, episode_to_download_in_account):
                     # files_to_scan.append(file_infos)
 
     for dir in dirs:
-        prepare_files(directory + "/" + dir, files_to_scan, episode_to_download_in_account)
+        prepare_files(directory + "/" + dir, files_to_scan, episode_to_download_in_account, file_to_write)
 
-    xbmc.log(settings.LOG_ADDON_NAME + "*** OUT prepare_files", xbmc.LOGDEBUG)
+    utils.log(settings.LOG_ADDON_NAME + "*** OUT prepare_files", xbmc.LOGDEBUG)
 
     return files_to_scan
 
@@ -116,7 +122,7 @@ def prepare_files(directory, files_to_scan, episode_to_download_in_account):
 # for directory in directories:
 # files_to_scan.append(prepare_files(directory, files_to_scan))
 #
-#     xbmc.log(settings.LOG_ADDON_NAME + "-------- %s files to mark as downloaded : %s" % (str(len(files_to_scan)), files_to_scan), xbmc.LOGDEBUG)
+#     utils.log(settings.LOG_ADDON_NAME + "-------- %s files to mark as downloaded : %s" % (str(len(files_to_scan)), files_to_scan), xbmc.LOGDEBUG)
 #
 #     i = 0
 #     for file in files_to_scan:
@@ -130,7 +136,7 @@ def main():
     progress.create("BetaSeries Downloaded starting. Please wait...")
 
     if settings.STARTUP_DELAY > 0:
-        xbmc.log(settings.LOG_ADDON_NAME + "waiting for user delay of %d seconds" % settings.STARTUP_DELAY,
+        utils.log(settings.LOG_ADDON_NAME + "waiting for user delay of %d seconds" % settings.STARTUP_DELAY,
                  xbmc.LOGDEBUG)
         msg = "Delaying startup by %d seconds."
         progress.update(0, message=msg % settings.STARTUP_DELAY)
@@ -145,27 +151,31 @@ def main():
         sources = []
         video_sources = settings.VIDEO_SOURCES
         sources.extend(zip(repeat('video'), video_sources))
-        xbmc.log("video sources %s" % video_sources, xbmc.LOGDEBUG)
+        utils.log("video sources %s" % video_sources, xbmc.LOGDEBUG)
 
         beta_series_downloaded = BetaSeriesDownloaded(__useragent__)
 
         if settings.SCAN_ON_START:
-            xbmc.log(settings.LOG_ADDON_NAME + "scan on start", xbmc.LOGDEBUG)
+            utils.log(settings.LOG_ADDON_NAME + "scan on start", xbmc.LOGDEBUG)
 
             # get the list of  episodes already in
             progress.update(0, message="Get the list of episodes from BetaSeries")
             episode_to_download_in_account = beta_series_downloaded._get_episode_already_in_account()
 
-            xbmc.log(settings.LOG_ADDON_NAME + "-------- list files in account%s (%s)" % (
+            utils.log(settings.LOG_ADDON_NAME + "-------- list files in account%s (%s)" % (
                 episode_to_download_in_account, len(episode_to_download_in_account)),
                      xbmc.LOGDEBUG)
             files_to_scan = []
             progress.close()
             progress.create("Prepare files to mark as download. Please wait...")
-            for directory in settings.VIDEO_SOURCES:
-                files_to_scan = prepare_files(directory, files_to_scan, episode_to_download_in_account)
+            file_to_write = xbmcvfs.File(settings.ADDON_PATH + '/file_to_mark_as_downloaded.txt', 'w')
 
-            xbmc.log(settings.LOG_ADDON_NAME + "-------- list files %s (%s)" % (files_to_scan, len(files_to_scan)),
+            for directory in settings.VIDEO_SOURCES:
+               files_to_scan = prepare_files(directory, files_to_scan, episode_to_download_in_account, file_to_write)
+
+            file_to_write.close()
+
+            utils.log(settings.LOG_ADDON_NAME + "-------- list files %s (%s)" % (files_to_scan, len(files_to_scan)),
                      xbmc.LOGNOTICE)
 
             progress_count = 0.
@@ -174,7 +184,7 @@ def main():
             progress.create("Check list of files. Please wait...")
             for file in files_to_scan:
                 progress_calc = progress_count / files_to_scan_len
-                xbmc.log(
+                utils.log(
                     settings.LOG_ADDON_NAME + "progress_count = %s, len(files_to_scan) = %s, progress_calc = %s" % (
                         progress_count, len(files_to_scan), progress_calc),
                     xbmc.LOGDEBUG)
@@ -190,7 +200,7 @@ def main():
             try:
                 emitter_cls = emitters.select_emitter(path)
             except IOError:
-                xbmc.log("not watching <%s>. does not exist" % path, xbmc.LOGNOTICE)
+                utils.log("not watching <%s>. does not exist" % path, xbmc.LOGNOTICE)
                 continue
             finally:
                 if xbmc.abortRequested:
@@ -199,16 +209,16 @@ def main():
             eh = EventHandler(libtype, path, beta_series_downloaded)
             try:
                 observer.schedule(eh, path=path, emitter_cls=emitter_cls)
-                xbmc.log("watching <%s> using %s" % (path, emitter_cls), xbmc.LOGNOTICE)
+                utils.log("watching <%s> using %s" % (path, emitter_cls), xbmc.LOGNOTICE)
             except Exception:
                 traceback.print_exc()
-                xbmc.log("failed to watch <%s>" % path, xbmc.LOGNOTICE)
+                utils.log("failed to watch <%s>" % path, xbmc.LOGNOTICE)
             finally:
                 if xbmc.abortRequested:
                     break
 
         progress.close()
-        xbmc.log("initialization done", xbmc.LOGDEBUG)
+        utils.log("initialization done", xbmc.LOGDEBUG)
 
         if settings.SHOW_STATUS_DIALOG:
             watching = ["Watching '%s'" % path for _, path in sources
@@ -225,7 +235,7 @@ def main():
             while not xbmc.abortRequested:
                 xbmc.sleep(100)
 
-        xbmc.log("stopping..", xbmc.LOGDEBUG)
+        utils.log("stopping..", xbmc.LOGDEBUG)
         observer.stop()
         observer.join()
 

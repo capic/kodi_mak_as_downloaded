@@ -5,6 +5,7 @@ import settings
 import urllib, urllib2, socket, hashlib, time, platform
 import simplejson as json
 import hashlib
+import utils
 from utils import get_urldata, extract_shows_info_from_directory_filename
 
 
@@ -134,7 +135,7 @@ class BetaSeriesDownloaded:
         self.user_agent = user_agent
 
     def _get_info(self, show_file):
-        xbmc.log(settings.LOG_ADDON_NAME + "*** IN BetaSeriesDownloaded._get_info : %s" % show_file, xbmc.LOGDEBUG)
+        utils.log(settings.LOG_ADDON_NAME + "*** IN BetaSeriesDownloaded._get_info : %s" % show_file, xbmc.LOGDEBUG)
 
         epinfo = {}
 
@@ -145,13 +146,13 @@ class BetaSeriesDownloaded:
 
             tvdbid = -1
 
-            xbmc.log(settings.LOG_ADDON_NAME + "SHOW: %s EPISODE : %s.%s" % (
+            utils.log(settings.LOG_ADDON_NAME + "SHOW: %s EPISODE : %s.%s" % (
                 infos_show_title, infos_show_season, infos_show_episode), xbmc.LOGDEBUG)
 
             url = settings.API_URL + '/shows/search'
             urldata = [['v', settings.API_VER], ['key', settings.API_KEY], ['title', infos_show_title]]
             try:
-                xbmc.log(settings.LOG_ADDON_NAME + "Try to get infos from betaseries", xbmc.LOGDEBUG)
+                utils.log(settings.LOG_ADDON_NAME + "Try to get infos from betaseries", xbmc.LOGDEBUG)
 
                 tvdbid_query = get_urldata(self.user_agent, url, urldata, "GET")
                 tvdbid_query = json.loads(tvdbid_query)
@@ -162,17 +163,17 @@ class BetaSeriesDownloaded:
                         showtitle = show['title']
 
                 if tvdbid == -1:
-                    xbmc.log(settings.LOG_ADDON_NAME + "Show %s not found" % infos_show_title, xbmc.LOGNOTICE)
+                    utils.log(settings.LOG_ADDON_NAME + "Show %s not found" % infos_show_title, xbmc.LOGNOTICE)
                     return False
 
-                xbmc.log(settings.LOG_ADDON_NAME + "Infos got from betaseries : %s " % tvdbid, xbmc.LOGDEBUG)
+                utils.log(settings.LOG_ADDON_NAME + "Infos got from betaseries : %s " % tvdbid, xbmc.LOGDEBUG)
             except:
-                xbmc.log(
+                utils.log(
                     settings.LOG_ADDON_NAME + "could not fetch tvshow's thetvdb_id, tshow itle: %s" % infos_show_title,
                     xbmc.LOGNOTICE)
                 return False
 
-            xbmc.log(settings.LOG_ADDON_NAME + "try to get episode", xbmc.LOGDEBUG)
+            utils.log(settings.LOG_ADDON_NAME + "try to get episode", xbmc.LOGDEBUG)
             url = settings.API_URL + '/shows/episodes'
             urldata = [['v', settings.API_VER], ['key', settings.API_KEY], ['thetvdb_id', str(tvdbid)],
                        ['season', infos_show_season], ['episode', infos_show_episode],
@@ -184,7 +185,7 @@ class BetaSeriesDownloaded:
                 downloaded = tvdbepid_query['episodes'][0]['user']['downloaded']
                 epname = tvdbepid_query['episodes'][0]['title']
             except:
-                xbmc.log(settings.LOG_ADDON_NAME + "could not fetch episode's thetvdb_id, show title: %s | %s %s " % (
+                utils.log(settings.LOG_ADDON_NAME + "could not fetch episode's thetvdb_id, show title: %s | %s %s " % (
                 infos_show_title, url, urldata),
                          xbmc.LOGNOTICE)
                 return False
@@ -194,11 +195,11 @@ class BetaSeriesDownloaded:
             epinfo = EpisodeObject(int(tvdbid), int(tvdbepid), showtitle, epname, infos_show_season, infos_show_episode,
                                    already_added, downloaded)
 
-            xbmc.log(settings.LOG_ADDON_NAME + "*** OUT BetaSeriesObject._get_info *****", xbmc.LOGDEBUG)
+            utils.log(settings.LOG_ADDON_NAME + "*** OUT BetaSeriesObject._get_info *****", xbmc.LOGDEBUG)
         return epinfo
 
     def _service_betaserie(self, file):
-        xbmc.log(settings.LOG_ADDON_NAME + "*** IN BetaSeriesObject._service_betaserie", xbmc.LOGDEBUG)
+        utils.log(settings.LOG_ADDON_NAME + "*** IN BetaSeriesObject._service_betaserie", xbmc.LOGDEBUG)
 
         tstamp = int(time.time())
         # don't proceed if we had an authentication failure
@@ -215,14 +216,14 @@ class BetaSeriesDownloaded:
                 if episode and episode.getTvdbId() != -1 and episode.getTvdbEpId() != -1:
                     self._service_mark_as_downloaded(episode)
 
-        xbmc.log(settings.LOG_ADDON_NAME + "*** OUT BetaSeriesObject._service_betaserie", xbmc.LOGDEBUG)
+        utils.log(settings.LOG_ADDON_NAME + "*** OUT BetaSeriesObject._service_betaserie", xbmc.LOGDEBUG)
 
     def _service_authenticate(self, timestamp):
-        xbmc.log(settings.LOG_ADDON_NAME + "*** IN BetaSeriesObject._service_authenticate", xbmc.LOGDEBUG)
+        utils.log(settings.LOG_ADDON_NAME + "*** IN BetaSeriesObject._service_authenticate", xbmc.LOGDEBUG)
 
         # don't proceed if timeout timer has not expired
         if self.betaserie_object.getTimerExpireTime() > int(timestamp):
-            xbmc.log(settings.LOG_ADDON_NAME + "timeout timer has not expired", xbmc.LOGNOTICE)
+            utils.log(settings.LOG_ADDON_NAME + "timeout timer has not expired", xbmc.LOGNOTICE)
             return
 
         # create a pass hash
@@ -236,14 +237,14 @@ class BetaSeriesDownloaded:
             response = get_urldata(self.user_agent, url, urldata, "POST")
             # authentication response
             data = json.loads(response)
-            xbmc.log(settings.LOG_ADDON_NAME + "successfully authenticated", xbmc.LOGNOTICE)
+            utils.log(settings.LOG_ADDON_NAME + "successfully authenticated", xbmc.LOGNOTICE)
         except:
             self._service_fail(True)
             xbmc.executebuiltin(
                 (u'Notification(%s,%s,%s,%s)' % (
                     settings.LOG_ADDON_NAME, settings.ADDON_TRAD(40006), 750, settings.ADDON_ICON)).encode('utf-8',
                                                                                                            'ignore'))
-            xbmc.log(settings.LOG_ADDON_NAME + "failed to connect for authentication", xbmc.LOGNOTICE)
+            utils.log(settings.LOG_ADDON_NAME + "failed to connect for authentication", xbmc.LOGNOTICE)
             return
 
         # parse results
@@ -256,7 +257,7 @@ class BetaSeriesDownloaded:
             self.betaserie_object.setTimerCounter(0)
             self.betaserie_object.setTimerExpireTime(0)
         if data['errors']:
-            xbmc.log(settings.LOG_ADDON_NAME + "%s error %s : %s" % (
+            utils.log(settings.LOG_ADDON_NAME + "%s error %s : %s" % (
                 self.betaserie_object.getService(), data['errors'][0]['code'], data['errors'][0]['text']),
                      xbmc.LOGNOTICE)
             if data['errors'][0]['code'] < 2000:
@@ -266,7 +267,7 @@ class BetaSeriesDownloaded:
                         settings.ADDON_NAME, settings.ADDON_TRAD(40005), 750, settings.ADDON_ICON)).encode(
                         'utf-8',
                         'ignore'))
-                xbmc.log(settings.LOG_ADDON_NAME + "bad API usage", xbmc.LOGNOTICE)
+                utils.log(settings.LOG_ADDON_NAME + "bad API usage", xbmc.LOGNOTICE)
                 # disable the service, the monitor class will pick up the changes
                 settings.ADDON.setSetting('betaactive', 'false')
             elif data['errors'][0]['code'] > 4001:
@@ -275,7 +276,7 @@ class BetaSeriesDownloaded:
                     (u'Notification(%s,%s,%s,%s)' % (
                         settings.ADDON_NAME, settings.ADDON_TRAD(40007), 750, settings.ADDON_ICON)).encode('utf-8',
                                                                                                            'ignore'))
-                xbmc.log(settings.LOG_ADDON_NAME + "login or password incorrect", xbmc.LOGNOTICE)
+                utils.log(settings.LOG_ADDON_NAME + "login or password incorrect", xbmc.LOGNOTICE)
                 self.betaserie_object.setAuthFail(True)
             else:
                 # everything else
@@ -284,12 +285,12 @@ class BetaSeriesDownloaded:
                     (u'Notification(%s,%s,%s,%s)' % (
                         settings.ADDON_NAME, settings.ADDON_TRAD(40004), 750, settings.ADDON_ICON)).encode('utf-8',
                                                                                                            'ignore'))
-                xbmc.log(settings.LOG_ADDON_NAME + "server error while authenticating", xbmc.LOGNOTICE)
+                utils.log(settings.LOG_ADDON_NAME + "server error while authenticating", xbmc.LOGNOTICE)
 
-        xbmc.log(settings.LOG_ADDON_NAME + "*** OUT BetaSeries._service_authenticate", xbmc.LOGDEBUG)
+        utils.log(settings.LOG_ADDON_NAME + "*** OUT BetaSeries._service_authenticate", xbmc.LOGDEBUG)
 
     def _get_episode_already_in_account(self):
-        xbmc.log(settings.LOG_ADDON_NAME + "*** IN BetaSeries._get_episode_already_in_account", xbmc.LOGDEBUG)
+        utils.log(settings.LOG_ADDON_NAME + "*** IN BetaSeries._get_episode_already_in_account", xbmc.LOGDEBUG)
         episodes_to_download = {}
 
         tstamp = int(time.time())
@@ -306,16 +307,16 @@ class BetaSeriesDownloaded:
                 urldata = [['v', settings.API_VER], ['key', settings.API_KEY],
                            ['token', self.betaserie_object.getToken()]]
                 # try:
-                xbmc.log(settings.LOG_ADDON_NAME + "Try to get episodes to see from betaseries", xbmc.LOGDEBUG)
+                utils.log(settings.LOG_ADDON_NAME + "Try to get episodes to see from betaseries", xbmc.LOGDEBUG)
 
                 account_infos = get_urldata(self.user_agent, url, urldata, "GET")
                 account_infos = json.loads(account_infos)
 
                 for show in account_infos['shows']:
-                    # xbmc.log(settings.LOG_ADDON_NAME + "Show : %s" % show['title'], xbmc.LOGDEBUG)
+                    # utils.log(settings.LOG_ADDON_NAME + "Show : %s" % show['title'], xbmc.LOGDEBUG)
                     list_season_episode = {}
                     for episode in show['unseen']:
-                        # xbmc.log(settings.LOG_ADDON_NAME + "Episode : %s" % episode['title'].encode('utf-8'), xbmc.LOGDEBUG)
+                        # utils.log(settings.LOG_ADDON_NAME + "Episode : %s" % episode['title'].encode('utf-8'), xbmc.LOGDEBUG)
                         downloaded = episode['user']['downloaded']
                         if downloaded:
                             # show 1
@@ -330,7 +331,7 @@ class BetaSeriesDownloaded:
                             show_season = episode['season']
                             show_episode = episode['episode']
 
-                            xbmc.log(settings.LOG_ADDON_NAME + "Show %s, Episode %s.%s" % (
+                            utils.log(settings.LOG_ADDON_NAME + "Show %s, Episode %s.%s" % (
                             show['title'], show_season, show_episode), xbmc.LOGDEBUG)
 
                             if show_season in list_season_episode:
@@ -341,26 +342,24 @@ class BetaSeriesDownloaded:
                     if len(list_season_episode) > 0:
                         show_title = show['title'].lower()
                         episodes_to_download[show_title] = list_season_episode
-                        xbmc.log(settings.LOG_ADDON_NAME + "%s => %s" % (show_title, list_season_episode),
-                                 xbmc.LOGDEBUG)
 
-                xbmc.log(settings.LOG_ADDON_NAME + "Episodes to see got from betaseries", xbmc.LOGDEBUG)
+                utils.log(settings.LOG_ADDON_NAME + "Episodes to see got from betaseries", xbmc.LOGDEBUG)
                 # except:
-                # xbmc.log(settings.LOG_ADDON_NAME + "could not fetch episodes to see %s" % ''.join(traceback.format_exception(*sys.exc_info())).encode('utf-8'), xbmc.LOGNOTICE)
+                # utils.log(settings.LOG_ADDON_NAME + "could not fetch episodes to see %s" % ''.join(traceback.format_exception(*sys.exc_info())).encode('utf-8'), xbmc.LOGNOTICE)
                 # return False
 
-        xbmc.log(settings.LOG_ADDON_NAME + "*** OUT BetaSeries._get_episode_already_in_account", xbmc.LOGDEBUG)
+        utils.log(settings.LOG_ADDON_NAME + "*** OUT BetaSeries._get_episode_already_in_account", xbmc.LOGDEBUG)
 
         return episodes_to_download
 
     def _service_mark_as_downloaded(self, episode):
-        xbmc.log(settings.LOG_ADDON_NAME + "*** IN BetaSeries._service_mark_as_downloaded *******", xbmc.LOGDEBUG)
-        xbmc.log(settings.LOG_ADDON_NAME + "Episode %s.%s: " % (episode.getSeason(), episode.getEpisode()),
+        utils.log(settings.LOG_ADDON_NAME + "*** IN BetaSeries._service_mark_as_downloaded *******", xbmc.LOGDEBUG)
+        utils.log(settings.LOG_ADDON_NAME + "Episode %s.%s: " % (episode.getSeason(), episode.getEpisode()),
                  xbmc.LOGDEBUG)
 
         # episode not already marked as downloaded
         if not episode.getEpisodeAlreadyDownloaded():
-            xbmc.log(settings.LOG_ADDON_NAME + "Mark show as followed: %s, Show already added: %s" %
+            utils.log(settings.LOG_ADDON_NAME + "Mark show as followed: %s, Show already added: %s" %
                      (str(settings.BETA_FOLLOW), str(episode.getShowAlreadAdded())), xbmc.LOGNOTICE)
             # want to add the show to the account and the show is not already added
             if settings.BETA_FOLLOW and not episode.getShowAlreadAdded():
@@ -374,7 +373,7 @@ class BetaSeriesDownloaded:
                     data = json.loads(response)
                 except:
                     self._service_fail(False)
-                    xbmc.log(settings.LOG_ADDON_NAME + "failed to follow show %s" % episode.getShowTitle(),
+                    utils.log(settings.LOG_ADDON_NAME + "failed to follow show %s" % episode.getShowTitle(),
                              xbmc.LOGNOTICE)
                     return
                 # parse results
@@ -382,10 +381,10 @@ class BetaSeriesDownloaded:
                     if data['errors'][0]['code'] == 2001:
                         # drop our session key
                         self.betaserie_object.setToken('')
-                        xbmc.log(settings.LOG_ADDON_NAME + "bad token while following show", xbmc.LOGNOTICE)
+                        utils.log(settings.LOG_ADDON_NAME + "bad token while following show", xbmc.LOGNOTICE)
                         return
                     elif data['errors'][0]['code'] == 2003:
-                        xbmc.log(settings.LOG_ADDON_NAME + "already following show %s" % episode.getShowTitle(),
+                        utils.log(settings.LOG_ADDON_NAME + "already following show %s" % episode.getShowTitle(),
                                  xbmc.LOGNOTICE)
                     else:
                         xbmc.executebuiltin((u'Notification(%s,%s,%s,%s)' % (
@@ -393,7 +392,7 @@ class BetaSeriesDownloaded:
                             750, settings.ADDON_ICON)).encode(
                             'utf-8',
                             'ignore'))
-                        xbmc.log(settings.LOG_ADDON_NAME + "failed to follow show %s" % episode.getShowTitle(),
+                        utils.log(settings.LOG_ADDON_NAME + "failed to follow show %s" % episode.getShowTitle(),
                                  xbmc.LOGNOTICE)
                         return
                 else:
@@ -403,7 +402,7 @@ class BetaSeriesDownloaded:
                             episode.getSeason(), episode.getEpisode(), 750, settings.ADDON_ICON)).encode(
                             'utf-8',
                             'ignore'))
-                    xbmc.log(settings.LOG_ADDON_NAME + "now following show %s" % (episode.getShowTitle()),
+                    utils.log(settings.LOG_ADDON_NAME + "now following show %s" % (episode.getShowTitle()),
                              xbmc.LOGNOTICE)
             # mark episode as downloaded
             url = settings.API_URL + "/episodes/downloaded"
@@ -416,7 +415,7 @@ class BetaSeriesDownloaded:
                 data = json.loads(response)
             except:
                 self._service_fail(False)
-                xbmc.log(settings.LOG_ADDON_NAME + "failed to mark as downloaded", xbmc.LOGNOTICE)
+                utils.log(settings.LOG_ADDON_NAME + "failed to mark as downloaded", xbmc.LOGNOTICE)
                 return
 
             # parse results
@@ -424,9 +423,9 @@ class BetaSeriesDownloaded:
                 if data['errors'][0]['code'] == 2001:
                     # drop our session key
                     self.betaserie_object.setToken('')
-                    xbmc.log(settings.LOG_ADDON_NAME + "bad token while marking episode", xbmc.LOGNOTICE)
+                    utils.log(settings.LOG_ADDON_NAME + "bad token while marking episode", xbmc.LOGNOTICE)
                 elif data['errors'][0]['code'] == 0:
-                    xbmc.log(
+                    utils.log(
                         settings.LOG_ADDON_NAME + "not following show, or episode %s already marked as downloaded" %
                         episode.getEpName(),
                         xbmc.LOGNOTICE)
@@ -436,7 +435,7 @@ class BetaSeriesDownloaded:
                             settings.ADDON_NAME, settings.ADDON_TRAD(40009), 750, settings.ADDON_ICON)).encode(
                             'utf-8',
                             'ignore'))
-                    xbmc.log(settings.LOG_ADDON_NAME + "error marking episode %s as downloaded" % episode.getEpName(),
+                    utils.log(settings.LOG_ADDON_NAME + "error marking episode %s as downloaded" % episode.getEpName(),
                              xbmc.LOGNOTICE)
             else:
                 if settings.BETA_NOTIFY:
@@ -444,10 +443,10 @@ class BetaSeriesDownloaded:
                         (u'Notification(%s,%s,%s,%s)' % (
                             settings.ADDON_NAME, settings.ADDON_TRAD(40003), 750, settings.ADDON_ICON)).encode(
                             'utf-8', 'ignore'))
-                xbmc.log(settings.LOG_ADDON_NAME + "%s episode %s.%s marked as downloaded" % (
+                utils.log(settings.LOG_ADDON_NAME + "%s episode %s.%s marked as downloaded" % (
                     episode.getShowTitle(), episode.getSeason(), episode.getEpisode()), xbmc.LOGNOTICE)
 
-        xbmc.log(settings.LOG_ADDON_NAME + "*** OUT BetaSeries._service_mark_as_downloaded *******", xbmc.LOGDEBUG)
+        utils.log(settings.LOG_ADDON_NAME + "*** OUT BetaSeries._service_mark_as_downloaded *******", xbmc.LOGDEBUG)
 
     def _service_fail(self, timer):
         timestamp = int(time.time())

@@ -27,6 +27,7 @@ ADDON_ID = ADDON.getAddonInfo('id').decode('utf-8')
 ADDON_VERSION = ADDON.getAddonInfo('version').decode('utf-8')
 ADDON_NAME = ADDON.getAddonInfo('name').decode('utf-8')
 ADDON_ICON = ADDON.getAddonInfo('icon')
+ADDON_PATH = ADDON.getAddonInfo('path')
 LOG_ADDON_NAME = "[ ** " + ADDON_NAME + " ** ] => "
 
 BETA_ACTIVE = ADDON.getSetting('betaactive') == 'true'
