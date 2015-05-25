@@ -201,7 +201,7 @@ def extract_shows_info_from_filename(filename_to_extract):
             episode = re.search('E[0-9]+', name, re.IGNORECASE).group(0)[1:].lstrip('0')
             name = name[:index_season_episode]
             name = name.replace('.', ' ')
-            name = name.replace('_', ':')
+            name = name.replace('__', ':')
             name = name.strip()
 
             if name != "" and season != "" and episode != "":
@@ -226,7 +226,7 @@ def extract_shows_info_from_directory_filename(filename_to_extract):
             episode = re.search('E[0-9]+', show_name, re.IGNORECASE).group(0)[1:].lstrip('0')
 
             if name != "" and season != "" and episode != "":
-                name = name.replace('_', ':')
+                name = name.replace('__', ':')
                 infos = [name.lower(), int(season), int(episode)]
                 log(settings.LOG_ADDON_NAME + "%s" % infos, xbmc.LOGDEBUG)
 
