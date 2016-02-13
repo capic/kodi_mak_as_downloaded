@@ -282,7 +282,7 @@ class Main:
                 if service[11]:
                     xbmc.executebuiltin(
                         (u'Notification(%s,%s,%s,%s)' % (
-                            __addonname__, __language__(40003 % (episode[3], episode[4])), 750, __icon__)).encode(
+                            __addonname__, __language__(40003 % (episode[3], episode[4], episode[4])), 750, __icon__)).encode(
                             'utf-8', 'ignore'))
                 utils.log(__addonname__ + "=> %s episode %s marked as downloaded" % (episode[4], episode[5]))
             return service

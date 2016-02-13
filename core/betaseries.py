@@ -441,7 +441,7 @@ class BetaSeriesDownloaded:
                 if settings.BETA_NOTIFY:
                     xbmc.executebuiltin(
                         (u'Notification(%s,%s,%s,%s)' % (
-                            settings.ADDON_NAME, settings.ADDON_TRAD(40003), 750, settings.ADDON_ICON)).encode(
+                            settings.ADDON_NAME, settings.ADDON_TRAD(40003 % (episode.getShowTitle(), episode.getSeason(), episode.getEpisode())), 750, settings.ADDON_ICON)).encode(
                             'utf-8', 'ignore'))
                 utils.log(settings.LOG_ADDON_NAME + "%s episode %s.%s marked as downloaded" % (
                     episode.getShowTitle(), episode.getSeason(), episode.getEpisode()), xbmc.LOGNOTICE)
