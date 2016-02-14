@@ -241,7 +241,7 @@ class Main:
                 else:
                     if service[11]:
                         xbmc.executebuiltin((u'Notification(%s,%s,%s,%s)' % (
-                            __addonname__, __language__(40002) + episode[3].decode('utf-8'), 750, __icon__)).encode(
+                            __addonname__, __language__(40002) % episode[3].decode('utf-8'), 750, __icon__)).encode(
                             'utf-8',
                             'ignore'))
                     utils.log(__addonname__ + "=> now following show %s" % (episode[3]))

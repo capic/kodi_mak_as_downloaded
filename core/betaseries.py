@@ -398,7 +398,7 @@ class BetaSeriesDownloaded:
                 else:
                     if settings.BETA_NOTIFY:
                         xbmc.executebuiltin((u'Notification(%s,%s,%s,%s,%s,%s,%s)' % (
-                            settings.ADDON_NAME, settings.ADDON_TRAD(40002), episode.getShowTitle(),
+                            settings.ADDON_NAME, settings.ADDON_TRAD(40002) % episode.getShowTitle(), episode.getShowTitle(),
                             episode.getSeason(), episode.getEpisode(), 750, settings.ADDON_ICON)).encode(
                             'utf-8',
                             'ignore'))

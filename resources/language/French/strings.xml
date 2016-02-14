@@ -39,7 +39,7 @@
 
     <!--NOTIFICATIONS-->
     <string id="40001">Chargement réussi</string>
-    <string id="40002">Série ajoutée</string>
+    <string id="40002">Série %s ajoutée</string>
     <string id="40003">Episode %s [%sx%s] marqué comme téléchargé</string>
     <string id="40004">Erreur d'authentification</string>
     <string id="40005">Veuillez mettre à jour l'addon</string>
